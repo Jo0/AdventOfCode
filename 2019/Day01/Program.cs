@@ -13,10 +13,11 @@ namespace Day01
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            var modules = new List<Module>();
-
             var path = Path.Combine(AppContext.BaseDirectory, "input.txt");
             var inputFile = File.OpenRead(path);
+
+            var moduleCount = 0;
+            var totalFuelRequirement = 0;
 
             using (var streamReader = new StreamReader(inputFile))
             {
@@ -26,27 +27,20 @@ namespace Day01
 
                     if (Int32.TryParse(line, out var mass))
                     {
-                        modules.Add(new Module(mass));
+                        var module = new Module(mass, false);
+                        moduleCount++;
+                        totalFuelRequirement = module.FuelRequired;
                     }
                 }
                 while (!streamReader.EndOfStream);
             }
 
-            var totalFuelRequirement = 0;
-
-            foreach (var module in modules)
-            {
-                Console.WriteLine($"Module #{modules.IndexOf(module)}\n\tMass = {module.Mass}\n\tFuel Required = {module.FuelRequired}");
-
-                totalFuelRequirement += module.FuelRequired;
-            }
-
             Console.WriteLine();
-            Console.WriteLine($"Number of Modules = {modules.Count}");
+            Console.WriteLine($"Number of Modules = {moduleCount}");
             Console.WriteLine($"Total fuel required = {totalFuelRequirement}");
 
-            stopwatch.Stop();
 
+            stopwatch.Stop();
             Console.WriteLine($"Completed in {stopwatch.Elapsed.TotalMilliseconds} ms");
         }
     }
