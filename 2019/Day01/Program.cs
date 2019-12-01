@@ -78,7 +78,6 @@ namespace Day01
                 {
                     return fuel;
                 }
-                
             }
         }
 
