@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Day02
@@ -16,30 +17,30 @@ namespace Day02
             var path = Path.Combine(AppContext.BaseDirectory, "input.txt");
             var inputFile = File.OpenRead(path);
 
-            string[] intCode = { };
+            int[] intCode = { };
 
             using (var streamReader = new StreamReader(inputFile))
             {
                 var intCodeFromFile = await streamReader.ReadToEndAsync();
 
-                intCode = intCodeFromFile.Split(',');
+                intCode = intCodeFromFile.Split(',').Select(s => Int32.Parse(s)).ToArray();
             }
 
-            var restorePositions = new Dictionary<int, int>()
-            {
-                {1, 12},
-                {2, 2}
-            };
+            //var restorePositions = new Dictionary<int, int>()
+            //{
+            //    {1, 12},
+            //    {2, 2}
+            //};
 
-            intCode.RestoreIntCode(restorePositions);
+            //intCode.RestoreIntCode(restorePositions);
 
-            //intCode.ProcessIntCode();
+            intCode.ProcessIntCode();
 
-            //Console.WriteLine(intCode[0]);
+            Console.WriteLine(intCode[0]);
 
-            var valuePair = intCode.FindValuePair(19690720);
+            //var valuePair = intCode.FindValuePair(19690720);
 
-            Console.WriteLine($"noun={valuePair.Noun} verb={valuePair.Verb}");
+            //Console.WriteLine($"noun={valuePair.Noun} verb={valuePair.Verb}");
 
             stopwatch.Stop();
             Console.WriteLine($"Completed in {stopwatch.Elapsed.TotalMilliseconds} ms");
@@ -56,84 +57,92 @@ namespace Day02
     public static class IntCodeRunner
     {
 
-        public static void RestoreIntCode(this string[] intCode, Dictionary<int, int> restorePositions)
+        public static void RestoreIntCode(this int[] intCode, Dictionary<int, int> restorePositions)
         {
             foreach(var position in restorePositions.Keys)
             {
-                intCode[position] = restorePositions[position].ToString();
+                intCode[position] = restorePositions[position];
             }
         }
 
-        public static void ProcessIntCode(this string[] intCode)
+        public static int ProcessIntCode(this int[] intCode, int? positionToGetValue = null)
         {
 
             for (var i = 0; i < intCode.Length; i += 4)
             {
-                Int32.TryParse(intCode[i], out var opCode);
+                var opCode = intCode[i];
 
                 if(opCode == 99)
                 {
-                    break;
+                    if (positionToGetValue.HasValue)
+                        return intCode[positionToGetValue.GetValueOrDefault()];
+                    else
+                        break;
+
                 }
 
-                Int32.TryParse(intCode[i + 1], out var nounPos);
-                Int32.TryParse(intCode[i + 2], out var verbPos);
-                Int32.TryParse(intCode[i + 3], out var overridePos);
+                var nounPos = intCode[i + 1];
+                var verbPos = intCode[i + 2];
+                var overridePos = intCode[i + 3];
 
-                var processedValue = intCode.ProcessOpCode(opCode, nounPos, verbPos, overridePos);
-
-                if (processedValue == Int32.MinValue)
-                {
-                    break;
-                }
+                intCode.ProcessOpCode(opCode, nounPos, verbPos, overridePos);
             }
+
+            return 0;
         }
 
-        public static ValuePair FindValuePair(this string[] intCode, int valueToFind)
+        public static ValuePair FindValuePair(this int[] intCode, int valueToFind)
         {
             for (var i = 0; i < intCode.Length; i += 4)
             {
-                Int32.TryParse(intCode[i], out var opCode);
-
-                if (opCode == 99)
+                var intCodeCopy = intCode;
+                
+                if(!intCodeCopy.Equals(intCode))
                 {
                     break;
                 }
 
-                Int32.TryParse(intCode[i + 1], out var nounPos);
-                Int32.TryParse(intCode[i + 2], out var verbPos);
-                Int32.TryParse(intCode[i + 3], out var overridePos);
+                var opCode = intCodeCopy[i];
 
-                var processedValue = intCode.ProcessOpCode(opCode, nounPos, verbPos, overridePos);
+                if (opCode == 99)
+                {
+                        break;
+                }
 
-                if (processedValue == valueToFind)
+                var nounPos = intCodeCopy[i + 1];
+                var verbPos = intCodeCopy[i + 2];
+                var overridePos = intCodeCopy[i + 3];
+
+                var processedValue = intCodeCopy.ProcessOpCode(opCode, nounPos, verbPos, overridePos);
+
+                if(processedValue == valueToFind)
                 {
                     return new ValuePair
                     {
-                        Noun = Int32.Parse(intCode[nounPos]),
-                        Verb = Int32.Parse(intCode[verbPos])
+                        Noun = intCodeCopy[nounPos],
+                        Verb = intCodeCopy[verbPos]
                     };
                 }
             }
 
-            return new ValuePair();
+            return default;
         }
 
-        public static int ProcessOpCode(this string[] intCode, int opCode, int nounPos, int verbPos, int overridePos)
+        public static int ProcessOpCode(this int[] intCode, int opCode, int nounPos, int verbPos, int overridePos)
         {
-            var noun = Int32.Parse(intCode[nounPos]);
-            var verb = Int32.Parse(intCode[verbPos]);
+            var noun = intCode[nounPos];
+            var verb = intCode[verbPos];
             int opVal = 0;
 
             switch (opCode)
             {
                 case (1):
                     opVal = noun + verb;
-                    intCode[overridePos] = opVal.ToString();
+                    intCode[overridePos] = opVal;
                     break;
                 case (2):
                     opVal = noun * verb;
-                    intCode[overridePos] = opVal.ToString();
+                    intCode[overridePos] = opVal;
                     break;
                 default:
                     break;
