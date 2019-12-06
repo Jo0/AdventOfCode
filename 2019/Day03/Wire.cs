@@ -49,4 +49,73 @@ namespace Day03
             return path;
         }
     }
+
+    public static class WireExtension
+    {
+        public static List<Point> FindIntersections(this IEnumerable<Wire> wires, Point startingPoint)
+        {
+            var intersections = wires.Select(w => w.Path.Distinct().ToList()).FindIntersections(startingPoint);
+
+            return intersections;
+        }
+
+        public static int StepsToPoint(this Wire wire, Point endPoint)
+        {
+            if (!wire.Path.Contains(endPoint, new PointComparer()))
+            {
+                return 0;
+            }
+
+            var steps = 0;
+
+            foreach (var point in wire.Path)
+            {
+                if (!point.Equals(endPoint))
+                {
+                    steps++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return steps;
+        }
+
+        public static int StepsToPointForWires(this IEnumerable<Wire> wires, Point endPoint)
+        {
+            var steps = 0;
+
+            foreach (var wire in wires)
+            {
+                steps += wire.StepsToPoint(endPoint);
+            }
+
+            return steps;
+        }
+
+        public static Dictionary<Point, int> FindShortestWire(this IEnumerable<Wire> wires, IEnumerable<Point> intersections)
+        {
+            var stepsPerIntersection = new Dictionary<Point, int>();
+
+
+            foreach (var point in intersections)
+            {
+                if (!stepsPerIntersection.ContainsKey(point))
+                {
+                    var steps = 0;
+                    
+                    foreach (var wire in wires)
+                    {
+                        steps += wire.StepsToPoint(point);
+                    }
+                    
+                    stepsPerIntersection.Add(point, steps);
+                }
+            }
+
+            return stepsPerIntersection;
+        }
+    }
 }

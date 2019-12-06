@@ -37,13 +37,18 @@ namespace Day03
                 wires.Add(new Wire(centralPort, traces));
             }
 
-            var intersections = wires.Select(w => w.Path).FindIntersections(centralPort);
+            var intersections = wires.FindIntersections(centralPort);
 
-            var distances = intersections.FindDistances(centralPort);
+            var pointDistances = intersections.FindDistances(centralPort);
 
-            var distancesSorted = distances.Values.OrderBy(d => d);
+            var closestPoint = pointDistances.Values.Min();
 
-            Console.WriteLine(distancesSorted.First());
+            Console.WriteLine($"Distance to closest intersection = {closestPoint}");
+
+            var stepsToIntersections = wires.FindShortestWire(intersections);
+
+            var shortestWire = stepsToIntersections.Values.Min();
+            Console.WriteLine($"Shortest wire = {shortestWire}");
 
             stopwatch.Stop();
             Console.WriteLine($"Completed in {stopwatch.Elapsed.TotalMilliseconds} ms");
