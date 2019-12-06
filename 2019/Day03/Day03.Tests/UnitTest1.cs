@@ -27,10 +27,12 @@ namespace Day03.Tests
                 wires.Add(new Wire(point, traces));
             }
 
-            var allPoints = wires.SelectMany(w => w.Path);
-            var allPointsGrouped = allPoints.GroupBy(p => p);
+            var lPoints = wires.Select(w => w.Path);
+            var allPoints = lPoints.SelectMany(p => p);
+            var allPointsGrouped = allPoints.GroupBy(p => p, new PointComparer());
 
-            var intersections = allPointsGrouped.Where(p => p.Count() > 1).Select(p => p.Key);
+            var intersections = allPointsGrouped.Where(p => p.Count() > 1 && !p.First().Equals(point)).Select(p => p.Key);
+
 
             Assert.True(intersections.Count() > 1);
         }
