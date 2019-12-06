@@ -16,10 +16,10 @@ namespace Day02
             stopwatch.Start();
 
             var path = Path.Combine(AppContext.BaseDirectory, "input.txt");
-            var inputFile = File.OpenRead(path);
 
             int[] intCode = { };
 
+            using (var inputFile = File.OpenRead(path))
             using (var streamReader = new StreamReader(inputFile))
             {
                 var intCodeFromFile = await streamReader.ReadToEndAsync();

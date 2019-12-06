@@ -14,11 +14,11 @@ namespace Day01
             stopwatch.Start();
 
             var path = Path.Combine(AppContext.BaseDirectory, "input.txt");
-            var inputFile = File.OpenRead(path);
 
             var moduleCount = 0;
             var totalFuelRequirement = 0;
 
+            using (var inputFile = File.OpenRead(path))
             using (var streamReader = new StreamReader(inputFile))
             {
                 do
