@@ -4,4 +4,5 @@ This is my first year participating in AoC. I've been meaning to brush up on pro
 
 
 ### Day 01 :star: :star:
-
+### Day 02 :star: :star:
+### Day 03 :star: :star:
