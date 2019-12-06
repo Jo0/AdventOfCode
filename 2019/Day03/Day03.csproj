@@ -6,6 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Day03.Tests\**" />
+    <EmbeddedResource Remove="Day03.Tests\**" />
+    <None Remove="Day03.Tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="input.txt" />
   </ItemGroup>
 

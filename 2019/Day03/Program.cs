@@ -32,35 +32,10 @@ namespace Day03
 
             foreach (var wireTrace in wireTraces)
             {
-                var wire = new Wire(centralPort);
 
-                var traces = wireTrace.Split(',');
-                foreach (var trace in traces)
-                {
-                    wire.Traces.Add(new Trace
-                    {
-                        Direction = (Direction)trace[0],
-                        NumberOfSteps = Int32.Parse(trace.Substring(1))
-                    });
+                var traces = wireTrace.GetTraces();
 
-                }
-
-                wires.Add(wire);
-
-
-                //var traces = wireTrace.Split(',');
-                //var lTraces = new List<Trace>();
-                //foreach (var trace in traces)
-                //{
-                //    lTraces.Add(new Trace
-                //    {
-                //        Direction = (Direction)trace[0],
-                //        NumberOfSteps = Int32.Parse(trace.Substring(1))
-                //    });
-
-                //}
-
-                //wires.Add(new Wire(centralPort, lTraces));
+                wires.Add(new Wire(centralPort, traces));
             }
 
             var intersections = wires.SelectMany(w => w.Path).GroupBy(p => p).Where(p => p.Count() > 1).Select(p => p.Key);
@@ -191,6 +166,27 @@ namespace Day03
             }
 
             return tracePath;
+        }
+    }
+
+    public static class TraceExtensions
+    {
+        public static List<Trace> GetTraces(this string input)
+        {
+            var traces = new List<Trace>();
+
+            var steps = input.Split(',');
+            
+            foreach (var step in steps)
+            {
+                traces.Add(new Trace
+                {
+                    Direction = (Direction)step[0],
+                    NumberOfSteps = Int32.Parse(step.Substring(1))
+                });
+            }
+
+            return traces;
         }
     }
 
