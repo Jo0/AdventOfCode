@@ -44,8 +44,7 @@ namespace Day03
 
         public int GetHashCode(Point point)
         {
-            return point.X.GetHashCode()
-                ^ point.Y.GetHashCode();
+            return point.X.GetHashCode() ^ point.Y.GetHashCode();
         }
     }
 
@@ -95,10 +94,29 @@ namespace Day03
         {
             var intersections = points.SelectMany(p => p)
                                       .GroupBy(p => p, new PointComparer())
-                                      .Where(p => p.Count() > 1 && !p.First().Equals(startingPoint))
+                                      .Where(p => p.Count() == 2 && !p.First().Equals(startingPoint))
                                       .Select(p => p.Key);
 
             return intersections.ToList();
+        }
+
+        public static Dictionary<Point,int> FindDistances(this IEnumerable<Point> intersections, Point startingPoint)
+        {
+            var distances = new Dictionary<Point, int>();
+
+            var startingX = startingPoint.X;
+            var startingY = startingPoint.Y;
+
+            foreach (var point in intersections)
+            {
+               var pointX = point.X;
+               var pointY = point.Y;
+               var distance = Math.Abs(pointX - startingX) + Math.Abs(pointY - startingY);
+
+                distances.Add(point, distance);
+            }
+
+            return distances;
         }
     }
 }

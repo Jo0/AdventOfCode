@@ -39,10 +39,11 @@ namespace Day03
 
             var intersections = wires.Select(w => w.Path).FindIntersections(centralPort);
 
-            foreach(var intersection in intersections)
-            {
-                Console.WriteLine($"X = {intersection.X}, Y = {intersection.Y}");
-            }
+            var distances = intersections.FindDistances(centralPort);
+
+            var distancesSorted = distances.Values.OrderBy(d => d);
+
+            Console.WriteLine(distancesSorted.First());
 
             stopwatch.Stop();
             Console.WriteLine($"Completed in {stopwatch.Elapsed.TotalMilliseconds} ms");
