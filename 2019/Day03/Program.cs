@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Day03
@@ -26,14 +27,14 @@ namespace Day03
                 }
             }
 
+            var centralPort = new Point(0, 0);
             var wires = new List<Wire>();
 
             foreach (var wireTrace in wireTraces)
             {
-                var wire = new Wire();
+                var wire = new Wire(centralPort);
 
                 var traces = wireTrace.Split(',');
-
                 foreach (var trace in traces)
                 {
                     wire.Traces.Add(new Trace
@@ -41,13 +42,34 @@ namespace Day03
                         Direction = (Direction)trace[0],
                         NumberOfSteps = Int32.Parse(trace.Substring(1))
                     });
+
                 }
 
                 wires.Add(wire);
+
+
+                //var traces = wireTrace.Split(',');
+                //var lTraces = new List<Trace>();
+                //foreach (var trace in traces)
+                //{
+                //    lTraces.Add(new Trace
+                //    {
+                //        Direction = (Direction)trace[0],
+                //        NumberOfSteps = Int32.Parse(trace.Substring(1))
+                //    });
+
+                //}
+
+                //wires.Add(new Wire(centralPort, lTraces));
             }
 
+            var intersections = wires.SelectMany(w => w.Path).GroupBy(p => p).Where(p => p.Count() > 1).Select(p => p.Key);
 
-            
+            foreach(var intersection in intersections)
+            {
+                Console.WriteLine($"X = {intersection.X}, Y = {intersection.Y}");
+            }
+
             stopwatch.Stop();
             Console.WriteLine($"Completed in {stopwatch.Elapsed.TotalMilliseconds} ms");
         }
@@ -55,12 +77,47 @@ namespace Day03
 
     public class Wire
     {
-        public Wire()
+        private Point _centralPort;
+        private List<Point> _path;
+
+        public Wire(Point centralPort)
         {
             Traces = new List<Trace>();
+            _centralPort = centralPort;
+        }
+
+        public Wire(Point centralPort, List<Trace> traces)
+        {
+            Traces = traces;
+            _centralPort = centralPort;
+            _path = GenerateTracePath(centralPort);
         }
 
         public List<Trace> Traces { get; set; }
+
+        public List<Point> Path
+        {
+            get
+            {
+                return _path ?? GenerateTracePath(_centralPort);
+            }
+        }
+
+        private List<Point> GenerateTracePath(Point startingPoint)
+        {
+            var path = new List<Point>();
+            path.Add(startingPoint);
+            foreach(var trace in Traces)
+            {
+                var endOfPath = path.Last();
+
+                var tracePath = endOfPath.TracePath(trace);
+
+                path.AddRange(tracePath);
+            }
+
+            return path;
+        }
     }
 
     public class Trace
@@ -68,6 +125,73 @@ namespace Day03
         public Direction Direction { get; set; }
 
         public int NumberOfSteps { get; set; }
+    }
+
+    public class Point
+    {
+        public Point()
+        {
+            X = 0;
+            Y = 0;
+        }
+
+        public Point(int x, int y)
+        {
+            X = x;
+            Y = y;
+        }
+
+        public int X { get; set; }
+        public int Y { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            var compareObj = (Point)obj;
+            return this.X == compareObj.X && this.Y == compareObj.Y;
+        }
+    }
+
+    public static class PointExtensions
+    {
+        public static List<Point> TracePath(this Point currentPoint, Trace trace)
+        {
+            var tracePath = new List<Point>();
+
+            if(trace.Direction == Direction.Up)
+            {
+                for(int i = 1; i <= trace.NumberOfSteps; i++)
+                {
+                    tracePath.Add(new Point(currentPoint.X + i, currentPoint.Y));
+                }
+            }
+            else if(trace.Direction == Direction.Down)
+            {
+                for (int i = 1; i <= trace.NumberOfSteps; i++)
+                {
+                    tracePath.Add(new Point(currentPoint.X - i, currentPoint.Y));
+                }
+            }
+            else if (trace.Direction == Direction.Left)
+            {
+                for (int i = 1; i <= trace.NumberOfSteps; i++)
+                {
+                    tracePath.Add(new Point(currentPoint.X, currentPoint.Y - i));
+                }
+            }
+            else if (trace.Direction == Direction.Right)
+            {
+                for (int i = 1; i <= trace.NumberOfSteps; i++)
+                {
+                    tracePath.Add(new Point(currentPoint.X, currentPoint.Y + i));
+                }
+            }
+            else
+            {
+                throw new Exception("Unknown Direction");
+            }
+
+            return tracePath;
+        }
     }
 
     public enum Direction
