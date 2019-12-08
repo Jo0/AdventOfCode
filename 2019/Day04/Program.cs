@@ -126,7 +126,7 @@ namespace Day04
 
                 if (alwaysIncrementingFromFirstDigit)
                 {
-                    var digitWithEvenOccurances = digits.Where(d => d.Value.Count == 2); 
+                    var digitWithEvenOccurances = digits.Where(d => d.Value.Count == 2); //change to >=2 for part 1
 
                     if(digitWithEvenOccurances.Any())
                     {
