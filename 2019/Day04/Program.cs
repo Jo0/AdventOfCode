@@ -1,4 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Day04
 {
@@ -11,7 +16,7 @@ namespace Day04
 
             var path = Path.Combine(AppContext.BaseDirectory, "input.txt");
 
-            var ranges = List<Range>();
+            var ranges = new List<Range>();
 
             using (var inputFile = File.OpenRead(path))
             using (var streamReader = new StreamReader(inputFile))
@@ -20,101 +25,152 @@ namespace Day04
                 {
                     var rangeLine = await streamReader.ReadLineAsync();
 
-                    foreach (var range in rangeLine)
-                    {
-                        var ranges = range.Split('-').First();
-                        var rangeMinimum = ranges[0];
-                        var rangeMaximum = ranges[1];
+                    var splitRangeLine = rangeLine.Split('-');
+                    var rangeMinimum = Int32.Parse(splitRangeLine[0]);
+                    var rangeMaximum = Int32.Parse(splitRangeLine[1]);
 
-                        ranges.Add(new Range(rangeMinimum, rangeMaximum));
-                    }
+                    ranges.Add(new Range(rangeMinimum, rangeMaximum));
                 }
             }
 
-            var passwords = new List<Password>();
+            var passwordRanges = new List<PasswordFinder>();
             foreach (var range in ranges)
             {
-                passwords.Add(new Password(range.Minimum, range.Maximum));
+                passwordRanges.Add(new PasswordFinder(range.Minimum, range.Maximum));
             }
 
-
-
-
+            foreach (var range in passwordRanges)
+            {
+                Console.WriteLine($"Range {range.Range.Minimum} - {range.Range.Maximum} contains {range.Passwords.Count} different passwords");
+            }
         }
     }
-    public class Password
+
+    public class PasswordFinder
     {
-        public Password()
+        private List<int> _passwords;
+
+        public PasswordFinder()
         {
 
         }
 
-        public Password(int minimum, int maximum)
+        public PasswordFinder(int minimum, int maximum)
         {
             Range = new Range(minimum, maximum);
+            _passwords = new List<int>();
+            FindPasswords();
         }
 
-
         public Range Range { get; set; }
-        public int Password
+
+        public bool FoundPasswords
         {
             get
             {
-                return FindPassword();
+                return this.Passwords.Count > 0;
             }
         }
 
-        private int FindPassword()
+        public List<int> Passwords
+        {
+            get
+            {
+                return _passwords;
+            }
+        }
+
+        private void FindPasswords()
         {
             for (var i = this.Range.Minimum; i <= this.Range.Maximum; i++)
             {
-                if (ValidatePasswor(i) == true)
+                if (ValidatePassword(i) == true)
                 {
-                    return int;
+                    _passwords.Add(i);
                 }
             }
-
-            return -1;
         }
 
         private bool ValidatePassword(int password)
         {
-            if(password > this.Range.Minimum && password < this.Range.Maximum)
+            var passwordStr = password.ToString();
+            var digits = new Dictionary<char, List<int>>();
+
+            var actuallySixDigit = passwordStr.Length == 6;
+            var matchingDigitsAlwaysInGroupsOfTwo = false;
+            var alwaysIncrementingFromFirstDigit = true;
+
+            if (actuallySixDigit)
             {
-                var passwordStr = password.ToString();
-                var actuallySixDigit = passwordStr.Length == 6;
-
-                if(actuallySixDigit){
-
-                    var twoSameAdjcentDigits = false;
-                    var alwaysIncrementingFromFirstDigit = false;
-
-                    for(var i = 0; i < passwordStr.Length - 1; i++)
+                for (var i = 0; i < passwordStr.Length; i++)
+                {
+                    if(i != passwordStr.Length - 1)
                     {
-
-                        twoSameAdjcentDigits = passwordStr[i].Equals(passwordStr[i+1]);
-                        alwaysIncrementingFromFirstDigit = passwordStr[i] < passwordStr[i+1];
+                        alwaysIncrementingFromFirstDigit = passwordStr[i] <= passwordStr[i + 1];
                     }
 
-                    if(twoSameAdjcentDigits && alwaysIncrementingFromFirstDigit)
+                    if (digits.ContainsKey(passwordStr[i]))
                     {
-                        return true;
+                        digits[passwordStr[i]].Add(i);
+                    }
+                    else
+                    {
+                        digits.Add(passwordStr[i], new List<int>() { i });
                     }
 
+                    if (!alwaysIncrementingFromFirstDigit)
+                    {
+                        break;
+                    }
+                }
 
+                if (alwaysIncrementingFromFirstDigit)
+                {
+                    var digitWithEvenOccurances = digits.Where(d => d.Value.Count == 2); 
+
+                    if(digitWithEvenOccurances.Any())
+                    {
+                        matchingDigitsAlwaysInGroupsOfTwo = digitWithEvenOccurances.All(d =>
+                        {
+                            var serial = true;
+
+                            var positions = d.Value;
+
+                            for (int i = 0; i < positions.Count - 1; i++)
+                            {
+                                serial = positions[i] < positions[i + 1];
+
+                                if (!serial)
+                                {
+                                    break;
+                                }
+                            }
+
+                            return serial;
+                        });
+                    }
                 }
             }
-            
-            return false;
-        }
-            
-            return false;
+
+            return actuallySixDigit && matchingDigitsAlwaysInGroupsOfTwo && alwaysIncrementingFromFirstDigit;
         }
     }
 
     public class Range
     {
-        public long Minimum { get; set; }
-        public long Maximum { get; set; }
+        public Range()
+        {
+            Minimum = 0;
+            Maximum = 0;
+        }
+
+        public Range(int minimum, int maximum)
+        {
+            Minimum = minimum;
+            Maximum = maximum;
+        }
+
+        public int Minimum { get; set; }
+        public int Maximum { get; set; }
     }
 }
