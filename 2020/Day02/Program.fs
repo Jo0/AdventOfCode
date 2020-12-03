@@ -48,10 +48,10 @@ let validPassword(password:Password) =
 
 let validPassword2(password:Password) =
     match password with
-       | {occurrence = (0,0); character = _; password = _} -> false
-       | {occurrence = (pos1, pos2); character = c; password = p} -> 
-           let char = c.ToCharArray().[0]
-           (p.[pos1-1] = char) <> (p.[pos2-1] = char)
+    | {occurrence = (0,0); character = _; password = _} -> false
+    | {occurrence = (pos1, pos2); character = c; password = p} -> 
+        let char = c.ToCharArray().[0]
+        (p.[pos1-1] = char) <> (p.[pos2-1] = char)
 
 [<EntryPoint>]
 let main argv =
