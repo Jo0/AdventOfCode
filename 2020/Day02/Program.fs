@@ -57,16 +57,17 @@ let validPassword2(password:Password) =
 let main argv =
     let input = File.ReadAllLines("input.txt")
     
-    let validPasswords = input |> Seq.toList
-                               |> parsePolicies
-                               |> List.where(fun x -> validPassword x) 
+    let passwords = input |> Seq.toList
+                          |> parsePolicies
+
+    let validPasswords = passwords
+                            |> List.where(fun x -> validPassword x) 
     printf "%d" validPasswords.Length
     
     printf "\n"
 
-    let validPasswords2 = input |> Seq.toList
-                                |> parsePolicies
-                                |> List.where(fun x -> validPassword2 x) 
+    let validPasswords2 = passwords
+                            |> List.where(fun x -> validPassword2 x) 
     printf "%d" validPasswords2.Length
 
     0 // return an integer exit code
