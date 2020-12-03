@@ -43,6 +43,10 @@ namespace Day04
             {
                 Console.WriteLine($"Range {range.Range.Minimum} - {range.Range.Maximum} contains {range.Passwords.Count} different passwords");
             }
+
+
+            stopwatch.Stop();
+            Console.WriteLine($"Completed in {stopwatch.Elapsed.TotalMilliseconds} ms");
         }
     }
 
