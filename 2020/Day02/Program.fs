@@ -4,22 +4,22 @@ open System
 open System.IO
 
 type Password = {
-    occurence: int * int
+    occurrence: int * int
     character: string
     password: string
 }
 
 let parsePolicy(line:string) =
     let parts = line.Split(' ')
-    let occurence = parts.[0].Split('-') |> Seq.toList
-    let occurenceTuple = 
-        match occurence with
-        | [_; _] -> (Int32.Parse occurence.[0], Int32.Parse occurence.[1])
+    let occurrence = parts.[0].Split('-') |> Seq.toList
+    let occurrenceTuple = 
+        match occurrence with
+        | [_; _] -> (Int32.Parse occurrence.[0], Int32.Parse occurrence.[1])
         | _ -> (0,0)
     let character = parts.[1].Replace(":", "")
     let input = parts.[2]
     
-    let password : Password = {occurence = occurenceTuple; character = character; password = input}
+    let password : Password = {occurrence = occurrenceTuple; character = character; password = input}
     password
 
 let rec parsePolicies list =
@@ -29,27 +29,27 @@ let rec parsePolicies list =
         let policy = [parsePolicy x]
         policy @ parsePolicies xs
 
-let rec characterOccurenceCount(password:string, char:string) = 
+let rec characterOccurrenceCount(password:string, char:string) = 
     match password with
     | "" -> 0
     | s -> 
         let tail = s.Substring(1)
         let head = s.Substring(0,1)
         match head with
-        |  same when head = char -> 1 + characterOccurenceCount(tail, char) 
-        | _ -> 0 + characterOccurenceCount(tail, char)
+        |  same when head = char -> 1 + characterOccurrenceCount(tail, char) 
+        | _ -> 0 + characterOccurrenceCount(tail, char)
       
 let validPassword(password:Password) =
     match password with
-    | {occurence = (0,0); character = _; password = _} -> false
-    | {occurence = (low, high); character = c; password = p} -> 
-        let charCount = characterOccurenceCount(p,c)
+    | {occurrence = (0,0); character = _; password = _} -> false
+    | {occurrence = (low, high); character = c; password = p} -> 
+        let charCount = characterOccurrenceCount(p,c)
         charCount >= low && charCount <= high
 
 let validPassword2(password:Password) =
     match password with
-       | {occurence = (0,0); character = _; password = _} -> false
-       | {occurence = (pos1, pos2); character = c; password = p} -> 
+       | {occurrence = (0,0); character = _; password = _} -> false
+       | {occurrence = (pos1, pos2); character = c; password = p} -> 
            let char = c.ToCharArray().[0]
            (p.[pos1-1] = char) <> (p.[pos2-1] = char)
 
